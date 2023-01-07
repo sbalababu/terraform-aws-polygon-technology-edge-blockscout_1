@@ -4,7 +4,7 @@ module "vpc" {
 
   name       = var.vpc_name
   cidr_block = var.vpc_cidr_block
-  az_count   = 4
+  az_count   = 5
 
   subnets = {
     public = {
@@ -27,7 +27,7 @@ module "vpc" {
 locals {
   package_url     = var.lambda_function_zip
   downloaded      = basename(var.lambda_function_zip)
-  azs             = slice(data.aws_availability_zones.current.names, 0, 4)
+  azs             = slice(data.aws_availability_zones.current.names, 0, 5)
   private_subnets = [for _, value in module.vpc.private_subnet_attributes_by_az : value.id]
   private_azs = {
     for idx, az_name in local.azs : idx => az_name
@@ -87,7 +87,8 @@ module "user_data" {
   assm_region    = data.aws_region.current.name
   s3_bucket_name = module.s3.s3_bucket_id
   s3_key_name    = var.s3_key_name
-  total_nodes    = length(module.vpc.private_subnet_attributes_by_az)
+  
+    _nodes    = length(module.vpc.private_subnet_attributes_by_az)
 
   polygon_edge_dir = var.polygon_edge_dir
   ebs_device       = var.ebs_device
