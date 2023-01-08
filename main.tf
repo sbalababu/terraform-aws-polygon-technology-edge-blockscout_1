@@ -88,7 +88,7 @@ module "user_data" {
   s3_bucket_name = module.s3.s3_bucket_id
   s3_key_name    = var.s3_key_name
   
-    _nodes    = length(module.vpc.private_subnet_attributes_by_az)
+  total_nodes    = length(module.vpc.private_subnet_attributes_by_az)
 
   polygon_edge_dir = var.polygon_edge_dir
   ebs_device       = var.ebs_device
