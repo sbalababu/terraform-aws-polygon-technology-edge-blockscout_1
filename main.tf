@@ -167,6 +167,16 @@ module "blockscout_instance" {
   vpc_id    = module.vpc.vpc_attributes.id
   subnet_id = local.private_subnets[0]
   ### Polygon options ###
+  s3_bucket_name     = module.s3.s3_bucket_id
+  polygon_edge_dir   = var.polygon_edge_dir
+  max_slots          = var.max_slots
+  block_time         = var.block_time
+  prometheus_address = var.prometheus_address
+  block_gas_target   = var.block_gas_target
+  nat_address        = var.nat_address
+  dns_name           = var.dns_name
+  price_limit        = var.price_limit
+
   chain_data_ebs_volume_size  = var.chain_data_ebs_volume_size
   chain_data_ebs_name_tag     = var.chain_data_ebs_name_tag
   az             = local.private_azs[0]
