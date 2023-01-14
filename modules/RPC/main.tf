@@ -117,7 +117,7 @@ module "ec2_instance" {
 #  iam_role_description        = "IAM role for EC2 instance"
 #  iam_role_policies = {
 #    AdministratorAccess = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-  }
+#  }
   tags                        = var.tags
   user_data_base64            = data.cloudinit_config.RPC.rendered
   user_data_replace_on_change = true
