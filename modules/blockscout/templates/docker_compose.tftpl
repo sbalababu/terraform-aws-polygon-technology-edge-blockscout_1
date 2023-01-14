@@ -15,7 +15,7 @@ services:
     image: ${blockscout_docker_image}
     restart: always
     container_name: 'blockscout'
-    #network_mode: "host"
+    # network_mode: "host"
     links:
       - db:database
     command: bash -c "bin/blockscout eval \"Elixir.Explorer.ReleaseTasks.create_and_migrate()\" && bin/blockscout start"
