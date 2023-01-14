@@ -1,3 +1,4 @@
+/*
 data "aws_ami" "ubuntu" {
   most_recent = true
   owners      = ["679593333241"]
@@ -10,7 +11,7 @@ data "aws_ami" "ubuntu" {
     values = ["hvm"]
   }
 }
-
+*/
 module "sg_lb" {
   source              = "terraform-aws-modules/security-group/aws"
   version             = "4.16.0"
