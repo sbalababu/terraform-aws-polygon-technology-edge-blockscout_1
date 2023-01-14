@@ -116,8 +116,11 @@ variable "block_gas_limit" {
 
 variable "premine" {
   type        = string
-  description = "Premine the accounts with the specified ammount. Format: account:ammount,account:ammount"
+  description = "Premine the accounts with the specified ammount. Format: account:ammount,account:ammount" 
+
+  default     = "0x3956E90e632AEbBF34DEB49b71c28A83Bc029862"
 }
+
 
 variable "epoch_size" {
   type        = string
@@ -185,7 +188,9 @@ variable "block_time" {
 variable "alb_ssl_certificate" {
   type        = string
   description = "SSL certificate ARN for JSON-RPC loadblancer"
+  default       = "arn:aws:acm:us-east-1:578146331918:certificate/65507eaf-f054-4007-bddd-53b496774f49"
 }
+
 variable "nodes_alb_name_prefix" {
   type        = string
   description = "ALB name"
@@ -217,6 +222,7 @@ variable "lambda_function_zip" {
 variable "blockscout_alb_ssl_certificate" {
   type        = string
   description = "SSL certificate ARN for JSON-RPC Blockscout loadblancer"
+  default     = "arn:aws:acm:us-east-1:578146331918:certificate/65507eaf-f054-4007-bddd-53b496774f49"
 }
 variable "blockscout_nodes_alb_name_prefix" {
   type        = string
@@ -239,6 +245,7 @@ variable "blockscout_nodes_alb_targetgroup_name_prefix" {
 variable "RPC_alb_ssl_certificate" {
   type        = string
   description = "SSL certificate ARN for JSON-RPC RPC loadblancer"
+  default     = "arn:aws:acm:us-east-1:578146331918:certificate/65507eaf-f054-4007-bddd-53b496774f49"
 }
 variable "RPC_nodes_alb_name_prefix" {
   type        = string
@@ -254,3 +261,4 @@ variable "RPC_nodes_alb_targetgroup_name_prefix" {
   type        = string
   description = "ALB target group name"
   default     = "blck-"
+  }

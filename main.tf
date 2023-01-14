@@ -114,6 +114,10 @@ module "user_data" {
   max_validator_count  = var.max_validator_count
   min_validator_count  = var.min_validator_count
   pos                  = var.pos
+  blockscout_alb_ssl_certificate = var.blockscout_alb_ssl_certificate
+  alb_ssl_certificate = var.alb_ssl_certificate
+  RPC_alb_ssl_certificate = var.RPC_alb_ssl_certificate
+
 
 }
 
@@ -167,6 +171,17 @@ module "blockscout_instance" {
   vpc_id    = module.vpc.vpc_attributes.id
   subnet_id = local.private_subnets[0]
   ### Polygon options ###
+
+  s3_bucket_name     = module.s3.s3_bucket_id
+  polygon_edge_dir   = var.polygon_edge_dir
+  max_slots          = var.max_slots
+  block_time         = var.block_time
+  prometheus_address = var.prometheus_address
+  block_gas_target   = var.block_gas_target
+  nat_address        = var.nat_address
+  dns_name           = var.dns_name
+  price_limit        = var.price_limit
+
   chain_data_ebs_volume_size  = var.chain_data_ebs_volume_size
   chain_data_ebs_name_tag     = var.chain_data_ebs_name_tag
   az             = local.private_azs[0]
@@ -193,7 +208,6 @@ module "blockscout_instance" {
 
 }
 
-}
 
 module "RPC_instance" {
   source    = "./modules/RPC"
@@ -232,10 +246,12 @@ module "RPC_alb" {
   public_subnets      = [for _, value in module.vpc.public_subnet_attributes_by_az : value.id]
   alb_sec_group       = module.RPC_instance.sg_lb_id
   vpc_id              = module.vpc.vpc_attributes.id
-  node_ids            = [module.RPC_instance.instance_id]
+  node_ids            = [for _, instance in module.instances : instance.instance_id]
+
   alb_ssl_certificate = var.RPC_alb_ssl_certificate
 
   nodes_alb_name_prefix             = var.RPC_nodes_alb_name_prefix
   nodes_alb_name_tag                = var.RPC_nodes_alb_name_tag
   nodes_alb_targetgroup_name_prefix = var.RPC_nodes_alb_targetgroup_name_prefix
 }
+

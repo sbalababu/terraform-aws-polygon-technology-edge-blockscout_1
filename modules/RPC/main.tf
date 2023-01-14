@@ -58,6 +58,10 @@ data "cloudinit_config" "RPC" {
         "price_limit"        = var.price_limit
         "max_slots"          = var.max_slots
         "block_time"         = var.block_time
+	"node_name"            = var.node_name
+        "assm_path"            = var.assm_path
+        "assm_region"          = var.assm_region
+        "total_nodes"          = var.total_nodes
       }
     )
   }
