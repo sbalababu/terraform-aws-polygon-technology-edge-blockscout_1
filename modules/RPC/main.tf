@@ -73,10 +73,14 @@ module "ec2_instance" {
   monitoring                  = false
   vpc_security_group_ids      = concat([module.sg_internal.security_group_id], var.vpc_sgs)
   subnet_id                   = var.subnet_id
-  create_iam_instance_profile = true
-  iam_role_description        = "IAM role for EC2 instance"
-  iam_role_policies = {
-    AdministratorAccess = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+    
+##Added the below line based on the blockscout
+  iam_instance_profile = var.instance_iam_role
+
+#  create_iam_instance_profile = true
+#  iam_role_description        = "IAM role for EC2 instance"
+#  iam_role_policies = {
+#    AdministratorAccess = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   }
   tags                        = var.tags
   user_data_base64            = data.cloudinit_config.RPC.rendered
@@ -84,3 +88,19 @@ module "ec2_instance" {
 }
 
 
+resource "aws_volume_attachment" "attach_chain_data" {
+  device_name = "/dev/sdf"
+  volume_id   = aws_ebs_volume.chain_data.id
+  instance_id = module.ec2_instance.id
+}
+
+resource "aws_ebs_volume" "chain_data" {
+ availability_zone = var.az
+  size              = var.chain_data_ebs_volume_size
+  encrypted         = true
+
+  tags = {
+    Name = var.chain_data_ebs_name_tag
+  }
+ 
+}
