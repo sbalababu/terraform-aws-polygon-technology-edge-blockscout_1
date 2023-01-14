@@ -56,7 +56,7 @@ variable "ebs_root_name_tag" {
   description = "The name tag for the Polygon Edge instance root volume."
 }
 variable "instance_name" {
-  default     = "Polygon_Edge_Node"
+  default     = "kafka_Edge_Node"
   type        = string
   description = "The name of Polygon Edge instance"
 }
