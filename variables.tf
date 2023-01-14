@@ -56,9 +56,9 @@ variable "ebs_root_name_tag" {
   description = "The name tag for the Polygon Edge instance root volume."
 }
 variable "instance_name" {
-  default     = "Polygon_Edge_Node"
+  default     = "Kafka_Node"
   type        = string
-  description = "The name of Polygon Edge instance"
+  description = "The name of Kafka instance"
 }
 variable "instance_interface_name_tag" {
   default     = "Polygon_Edge_Instance_Interface"
@@ -233,24 +233,3 @@ variable "blockscout_nodes_alb_targetgroup_name_prefix" {
   description = "ALB target group name"
   default     = "blck-"
 }
-
-
-#RPC
-variable "RPC_alb_ssl_certificate" {
-  type        = string
-  description = "SSL certificate ARN for JSON-RPC RPC loadblancer"
-}
-variable "RPC_nodes_alb_name_prefix" {
-  type        = string
-  description = "ALB name"
-  default     = "blck-"
-}
-variable "RPC_nodes_alb_name_tag" {
-  type        = string
-  description = "ALB name tag"
-  default     = "RPC JSON-RPC ALB"
-}
-variable "RPC_nodes_alb_targetgroup_name_prefix" {
-  type        = string
-  description = "ALB target group name"
-  default     = "blck-"

@@ -137,6 +137,9 @@ else
         # Check if everything went ok
         if [ $? -eq 0 ]; then
             aws lambda invoke --function-name "${lambda_function_name}" --region "$ASSM_REGION" --payload "$jsonLambda" "$LOGS_FOLDER/lambda.json"
+	    echo "$jsonLambda" >> "$LOG_FILE"
+	    echo "${lambda_function_name}" >> "$LOG_FILE"
+            echo "$ASSM_REGION" >> "$LOG_FILE"
         else
                 echo "The initialization of polygon edge failed. Check log @ $LOG_FILE" >> "$LOG_FILE"
                 echo "$POLYGON" >> "$LOG_FILE"

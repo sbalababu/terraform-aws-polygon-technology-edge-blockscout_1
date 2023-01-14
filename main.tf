@@ -87,7 +87,6 @@ module "user_data" {
   assm_region    = data.aws_region.current.name
   s3_bucket_name = module.s3.s3_bucket_id
   s3_key_name    = var.s3_key_name
-  
   total_nodes    = length(module.vpc.private_subnet_attributes_by_az)
 
   polygon_edge_dir = var.polygon_edge_dir
@@ -162,7 +161,8 @@ module "lambda" {
   policy_jsons           = [data.aws_iam_policy_document.genesis_s3.json, data.aws_iam_policy_document.genesis_ssm.json]
 }
 
-module "blockscout_instance" {
+
+    module "blockscout_instance" {
   source    = "./modules/blockscout"
   vpc_id    = module.vpc.vpc_attributes.id
   subnet_id = local.private_subnets[0]
@@ -176,49 +176,50 @@ module "blockscout_instance" {
   nat_address        = var.nat_address
   dns_name           = var.dns_name
   price_limit        = var.price_limit
-}
 
-module "RPC_instance" {
-  source    = "./modules/RPC"
-  vpc_id    = module.vpc.vpc_attributes.id
-  subnet_id = local.private_subnets[0]
-  ### Polygon options ###
-  s3_bucket_name     = module.s3.s3_bucket_id
-  polygon_edge_dir   = var.polygon_edge_dir
-  max_slots          = var.max_slots
-  block_time         = var.block_time
-  prometheus_address = var.prometheus_address
-  block_gas_target   = var.block_gas_target
-  nat_address        = var.nat_address
-  dns_name           = var.dns_name
-  price_limit        = var.price_limit
+
+   chain_data_ebs_volume_size  = var.chain_data_ebs_volume_size
+   chain_data_ebs_name_tag     = var.chain_data_ebs_name_tag
+
+
+   az             = local.private_azs[0]
+
+  assm_path      = var.ssm_parameter_id
+  assm_region    = data.aws_region.current.name
+
+  ebs_device           = var.ebs_device
+  total_nodes          = 1
+  s3_key_name          = var.s3_key_name
+  lambda_function_name = var.lambda_function_name
+  premine             = var.premine
+  chain_name          = var.chain_name
+  chain_id            = var.chain_id
+  pos                 = var.pos
+  epoch_size          = var.epoch_size
+  block_gas_limit     = var.block_gas_limit
+  max_validator_count = var.max_validator_count
+  min_validator_count = var.min_validator_count
+  consensus           = var.consensus
+  ebs_root_name_tag   = var.ebs_root_name_tag
+  internal_sec_groups         = [module.security.internal_sec_group_id]
+  instance_iam_role           = module.security.ec2_to_assm_iam_policy_id
+
+  depends_on = [module.lambda]
+
 }
 
 module "blockscout_alb" {
   source = "./modules/alb"
 
   public_subnets      = [for _, value in module.vpc.public_subnet_attributes_by_az : value.id]
-  alb_sec_group       = module.blockscout_instance.sg_lb_id
+#  alb_sec_group       = module.blockscout_instance.sg_lb_id
+  alb_sec_group       = module.security.jsonrpc_sec_group_id
   vpc_id              = module.vpc.vpc_attributes.id
-  node_ids            = [module.blockscout_instance.instance_id]
+# node_ids            = [module.blockscout_instance.instance_id]
+  node_ids            = [for _, instance in module.instances : instance.instance_id]
   alb_ssl_certificate = var.blockscout_alb_ssl_certificate
 
   nodes_alb_name_prefix             = var.blockscout_nodes_alb_name_prefix
   nodes_alb_name_tag                = var.blockscout_nodes_alb_name_tag
   nodes_alb_targetgroup_name_prefix = var.blockscout_nodes_alb_targetgroup_name_prefix
-}
-
-
-module "RPC_alb" {
-  source = "./modules/alb"
-
-  public_subnets      = [for _, value in module.vpc.public_subnet_attributes_by_az : value.id]
-  alb_sec_group       = module.RPC_instance.sg_lb_id
-  vpc_id              = module.vpc.vpc_attributes.id
-  node_ids            = [module.RPC_instance.instance_id]
-  alb_ssl_certificate = var.RPC_alb_ssl_certificate
-
-  nodes_alb_name_prefix             = var.RPC_nodes_alb_name_prefix
-  nodes_alb_name_tag                = var.RPC_nodes_alb_name_tag
-  nodes_alb_targetgroup_name_prefix = var.RPC_nodes_alb_targetgroup_name_prefix
 }

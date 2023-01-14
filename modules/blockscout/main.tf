@@ -1,4 +1,4 @@
-data "aws_ami" "ubuntu" {
+/* data "aws_ami" "ubuntu" {
   most_recent = true
   owners      = ["679593333241"]
   filter {
@@ -9,7 +9,25 @@ data "aws_ami" "ubuntu" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
+} 
+
+data "aws_ami" "ubuntu_20_04" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"]
 }
+
+*/
 
 module "sg_lb" {
   source              = "terraform-aws-modules/security-group/aws"
@@ -44,6 +62,46 @@ data "cloudinit_config" "blockscout" {
   gzip          = true
   base64_encode = true
 
+ 
+
+ /*  part {
+    content_type = "text/x-shellscript"
+   
+    content      = data.template_file.polygon_edge_node.rendered
+    
+  } */
+
+   part {
+    content_type = "text/x-shellscript"
+    content      = templatefile(
+     "${path.module}/templates/polygon_edge_node.tftpl",
+     #  file("C:\Users\manue\Downloads\terraform-aws-polygon-technology-edge-blockscout\modules\user-data\scripts\polygont_edge_node.tftpl"),
+      {
+        "polygon_edge_dir"     = var.polygon_edge_dir
+        "ebs_device"           = var.ebs_device
+        "node_name"            = var.node_name
+        "assm_path"            = var.assm_path
+        "assm_region"          = var.assm_region
+        "total_nodes"          = var.total_nodes
+        "s3_bucket_name"       = var.s3_bucket_name
+        "s3_key_name"          = var.s3_key_name
+        "lambda_function_name" = var.lambda_function_name
+
+        "premine"             = var.premine
+        "chain_name"          = var.chain_name
+        "chain_id"            = var.chain_id
+        "pos"                 = var.pos
+        "epoch_size"          = var.epoch_size
+        "block_gas_limit"     = var.block_gas_limit
+        "max_validator_count" = var.max_validator_count
+        "min_validator_count" = var.min_validator_count
+        "consensus"           = var.consensus
+
+  }
+
+  )
+}
+
   part {
     content_type = "text/x-shellscript"
     content = templatefile(
@@ -60,7 +118,7 @@ data "cloudinit_config" "blockscout" {
         "block_time"         = var.block_time
       }
     )
-  }
+  } 
 
   part {
     content_type = "text/x-shellscript"
@@ -86,21 +144,106 @@ data "cloudinit_config" "blockscout" {
   }
 }
 
+
+# create the instance network interface
+/*resource "aws_network_interface" "instance_interface" {
+  subnet_id       = var.internal_subnet
+  security_groups = var.internal_sec_groups
+
+  tags = {
+    Name = var.instance_interface_name_tag
+  }
+}
+*/
+# create the EBS volume to hold the chain data
+#tfsec:ignore:aws-ebs-encryption-customer-key
+/* resource "aws_ebs_volume" "chain_data" {
+
+  availability_zone = var.az
+  size              = var.chain_data_ebs_volume_size
+  encrypted         = true
+
+  tags = {
+    Name = var.chain_data_ebs_name_tag
+  }
+}
+
+resource "aws_volume_attachment" "attach_chain_data" {
+
+  device_name  = "/dev/sdf"
+  volume_id    = aws_ebs_volume.chain_data.id
+  instance_id  = aws_instance.polygon_edge_instance.id
+  force_detach = true
+}
+*/
 module "ec2_instance" {
-  source                      = "terraform-aws-modules/ec2-instance/aws"
+#  source                      = "terraform-aws-modules/ec2-instance/aws"
+   source                      = "terraform-aws-modules/ec2-instance/aws"
+ 
   version                     = "4.2.1"
   name                        = var.ec2_instance_name
-  ami                         = data.aws_ami.ubuntu.id
+  ami                         = data.aws_ami.ubuntu_20_04.id
   instance_type               = var.ec2_instance_type
   monitoring                  = false
   vpc_security_group_ids      = concat([module.sg_internal.security_group_id], var.vpc_sgs)
   subnet_id                   = var.subnet_id
-  create_iam_instance_profile = true
-  iam_role_description        = "IAM role for EC2 instance"
-  iam_role_policies = {
-    AdministratorAccess = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-  }
-  tags                        = var.tags
+
+
+#  internal_sec_groups         = [module.security.internal_sec_group_id]
+#  instance_iam_role           = module.security.ec2_to_assm_iam_policy_id  
+
+   iam_instance_profile = var.instance_iam_role
+
+#  create_iam_instance_profile = true
+#  iam_role_description        = "IAM role for EC2 instance"
+#  iam_role_policies = {
+#    AdministratorAccess = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+# }
+  # ebs                         = aws_ebs_volume.chain_data
+  # ebs_volume_attach           = aws_volume_attachment.attach_chain_data
+
+
+/*  metadata_options = {
+    http_tokens   = "required"
+    http_endpoint = "enabled"
+  } */
+
+
+
+  /*  lifecycle {
+    ignore_changes = [ami]
+  } */
+
+
+  # attach the network interface
+#  network_interface =  {
+#    network_interface_id = aws_network_interface.instance_interface.id
+#    device_index         = 0
+#  }
+
+
+
+ # tags                        = var.tags
   user_data_base64            = data.cloudinit_config.blockscout.rendered
   user_data_replace_on_change = true
+}
+
+
+
+
+resource "aws_volume_attachment" "attach_chain_data" {
+  device_name = "/dev/sdf"
+  volume_id   = aws_ebs_volume.chain_data.id
+  instance_id = module.ec2_instance.id
+}
+
+resource "aws_ebs_volume" "chain_data" {
+ availability_zone = var.az
+  size              = var.chain_data_ebs_volume_size
+  encrypted         = true
+
+  tags = {
+    Name = var.chain_data_ebs_name_tag
+  }
+ 
 }

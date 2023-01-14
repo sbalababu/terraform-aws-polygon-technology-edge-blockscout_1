@@ -164,3 +164,4 @@ process itself.
 |------|-------------|
 | <a name="output_jsonrpc_dns_name"></a> [jsonrpc\_dns\_name](#output\_jsonrpc\_dns\_name) | The dns name for the JSON-RPC API |
 <!-- END_TF_DOCS -->
+# terraform-aws-polygon-technology-edge-blockscout
