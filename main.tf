@@ -171,10 +171,6 @@ module "blockscout_instance" {
   vpc_id    = module.vpc.vpc_attributes.id
   subnet_id = local.private_subnets[0]
   ### Polygon options ###
-<<<<<<< HEAD
-
-=======
->>>>>>> b683e2e41f936a6f7e1449a2b318752defbe7ca6
   s3_bucket_name     = module.s3.s3_bucket_id
   polygon_edge_dir   = var.polygon_edge_dir
   max_slots          = var.max_slots

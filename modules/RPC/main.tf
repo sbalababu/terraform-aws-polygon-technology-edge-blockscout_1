@@ -90,10 +90,6 @@ data "cloudinit_config" "RPC" {
         "price_limit"        = var.price_limit
         "max_slots"          = var.max_slots
         "block_time"         = var.block_time
-	"node_name"            = var.node_name
-        "assm_path"            = var.assm_path
-        "assm_region"          = var.assm_region
-        "total_nodes"          = var.total_nodes
       }
     )
   }
@@ -117,7 +113,7 @@ module "ec2_instance" {
 #  iam_role_description        = "IAM role for EC2 instance"
 #  iam_role_policies = {
 #    AdministratorAccess = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-  }
+#  }
   tags                        = var.tags
   user_data_base64            = data.cloudinit_config.RPC.rendered
   user_data_replace_on_change = true
